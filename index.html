@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no">
+
+<meta name="theme-color" content="#000000">
+
+<title>Rimon EasyCalc</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    background:#000;
+    color:#fff;
+    font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
+body{
+    min-height:100vh;
+}
+
+.app-wrapper{
+    width:100%;
+    min-height:100vh;
+    background:#000;
+    padding:
+    max(18px,env(safe-area-inset-top))
+    16px
+    35px;
+}
+
+.app{
+    width:100%;
+    max-width:520px;
+    margin:auto;
+}
+
+
+/* =========================
+   TOP BAR
+========================= */
+
+.topbar{
+    height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.top-button{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    border:1px solid #292929;
+    background:#171717;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+}
+
+
+/* History icon */
+
+.history-icon{
+    width:23px;
+    height:23px;
+    border:3px solid #eee;
+    border-radius:50%;
+    position:relative;
+}
+
+.history-icon::before{
+    content:"";
+    position:absolute;
+    width:2px;
+    height:8px;
+    background:#eee;
+    left:9px;
+    top:3px;
+}
+
+.history-icon::after{
+    content:"";
+    position:absolute;
+    width:7px;
+    height:2px;
+    background:#eee;
+    left:9px;
+    top:10px;
+    transform:rotate(20deg);
+}
+
+
+/* Calculator icon */
+
+.calculator-icon{
+    width:25px;
+    height:28px;
+    border:3px solid #eee;
+    border-radius:4px;
+    position:relative;
+}
+
+.calculator-icon::before{
+    content:"";
+    position:absolute;
+    left:4px;
+    top:4px;
+    width:11px;
+    height:5px;
+    border:2px solid #eee;
+}
+
+.calculator-icon::after{
+    content:"••••••••";
+    position:absolute;
+    left:2px;
+    top:10px;
+    width:18px;
+    font-size:12px;
+    line-height:7px;
+    overflow:hidden;
+}
+
+
+/* =========================
+   DISPLAY
+========================= */
+
+.display{
+    height:clamp(270px,42vh,500px);
+    min-height:260px;
+
+    display:flex;
+    align-items:flex-end;
+    justify-content:flex-end;
+
+    padding:
+    0 8px 22px;
+
+    overflow:hidden;
+}
+
+#expression{
+    position:absolute;
+    opacity:0;
+    pointer-events:none;
+}
+
+#display{
+    width:100%;
+    text-align:right;
+
+    font-size:
+    clamp(72px,15vw,118px);
+
+    line-height:1;
+    font-weight:300;
+    letter-spacing:-2px;
+
+    color:#f5f5f7;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:clip;
+}
+
+
+/* =========================
+   KEYS
+========================= */
+
+.keys{
+    width:100%;
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:
+    clamp(10px,2.2vw,15px);
+}
+
+.key{
+    width:100%;
+    aspect-ratio:1/1;
+
+    border:0;
+    border-radius:50%;
+
+    font-family:inherit;
+
+    font-size:
+    clamp(31px,7vw,48px);
+
+    font-weight:300;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+    transition:
+    transform .06s,
+    filter .08s;
+}
+
+.key:active{
+    transform:scale(.96);
+    filter:brightness(1.35);
+}
+
+.number-key{
+    background:#333333;
+    color:#fff;
+}
+
+.function-key{
+    background:#a5a5a5;
+    color:#111;
+}
+
+.operator-key{
+    background:#ff9500;
+    color:#fff;
+}
+
+.operator-key.active{
+    background:#fff;
+    color:#ff9500;
+}
+
+.plus-minus{
+    font-size:
+    clamp(27px,6vw,43px);
+}
+
+
+/* =========================
+   BACKSPACE
+========================= */
+
+.backspace-icon{
+    width:39%;
+    height:30%;
+
+    min-width:40px;
+    min-height:28px;
+
+    border:
+    3px solid currentColor;
+
+    border-radius:7px;
+
+    position:relative;
+}
+
+.backspace-icon::before{
+    content:"";
+
+    position:absolute;
+
+    left:-15px;
+    top:50%;
+
+    width:25px;
+    height:25px;
+
+    border-left:
+    3px solid currentColor;
+
+    border-bottom:
+    3px solid currentColor;
+
+    transform:
+    translateY(-50%)
+    rotate(45deg);
+}
+
+.backspace-icon::after{
+    content:"×";
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:
+    translate(-50%,-54%);
+
+    font-size:34px;
+    font-weight:300;
+}
+
+
+/* =========================
+   PAYMENT
+========================= */
+
+.payment-box{
+    display:none;
+
+    margin-top:32px;
+    padding:20px;
+
+    background:#111;
+
+    border:
+    1px solid #292929;
+
+    border-radius:24px;
+
+    box-shadow:
+    0 15px 40px
+    rgba(0,0,0,.4);
+}
+
+.payment-box.show{
+    display:block;
+}
+
+.payment-title{
+    margin:0;
+    font-size:24px;
+    font-weight:700;
+}
+
+.payment-subtitle{
+    color:#999;
+
+    font-size:14px;
+    line-height:1.5;
+
+    margin:
+    7px 0 18px;
+}
+
+
+/* Amount */
+
+.payment-amount{
+    background:#1d1d1d;
+
+    border:
+    1px solid #303030;
+
+    border-radius:18px;
+
+    padding:17px;
+
+    margin-bottom:16px;
+
+    text-align:center;
+}
+
+.payment-amount small{
+    display:block;
+
+    color:#999;
+
+    font-size:12px;
+
+    margin-bottom:5px;
+}
+
+.payment-amount strong{
+    font-size:35px;
+    color:#ff9500;
+}
+
+
+/* bKash */
+
+.bkash-card{
+    background:#181818;
+
+    border:
+    1px solid #303030;
+
+    border-radius:20px;
+
+    padding:17px;
+}
+
+.bkash-badge{
+    display:inline-flex;
+
+    align-items:center;
+    gap:7px;
+
+    background:#f4e6ff;
+
+    color:#7b2cbf;
+
+    padding:
+    7px 12px;
+
+    border-radius:999px;
+
+    font-size:12px;
+    font-weight:800;
+}
+
+.bkash-dot{
+    width:8px;
+    height:8px;
+
+    background:#7b2cbf;
+
+    border-radius:50%;
+}
+
+.send-text{
+    color:#aaa;
+
+    font-size:14px;
+    line-height:1.55;
+
+    margin:
+    14px 0 12px;
+}
+
+
+/* bKash number */
+
+.bkash-number{
+    background:#242424;
+
+    border:
+    1px solid #333;
+
+    border-radius:15px;
+
+    padding:16px;
+
+    text-align:center;
+}
+
+.bkash-number .label{
+    display:block;
+
+    color:#888;
+
+    font-size:12px;
+
+    margin-bottom:5px;
+}
+
+.bkash-number strong{
+    font-size:25px;
+
+    letter-spacing:1px;
+
+    color:#fff;
+}
+
+
+/* Copy */
+
+.copy-button{
+    width:100%;
+    height:45px;
+
+    margin-top:10px;
+
+    border:0;
+    border-radius:12px;
+
+    background:#2b2b2b;
+
+    color:#fff;
+
+    font-size:14px;
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+
+/* Notice */
+
+.payment-notice{
+    margin-top:15px;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    background:#241f13;
+
+    border:1px solid #4c401f;
+
+    color:#c9b77c;
+
+    font-size:12px;
+    line-height:1.5;
+}
+
+
+/* Transaction */
+
+.trx-label{
+    display:block;
+
+    color:#aaa;
+
+    font-size:13px;
+
+    margin-top:17px;
+    margin-bottom:6px;
+}
+
+.trx-label strong{
+    color:#ff9500;
+}
+
+.trx-input{
+    width:100%;
+    height:52px;
+
+    border:
+    1px solid #3a3a3a;
+
+    border-radius:13px;
+
+    padding:
+    0 14px;
+
+    outline:none;
+
+    background:#0c0c0c;
+
+    color:#fff;
+
+    font-size:16px;
+}
+
+.trx-input:focus{
+    border-color:#ff9500;
+}
+
+.trx-input::placeholder{
+    color:#666;
+}
+
+
+/* Verify */
+
+.verify-button{
+    width:100%;
+    height:52px;
+
+    margin-top:10px;
+
+    border:0;
+    border-radius:13px;
+
+    background:#ff9500;
+
+    color:#fff;
+
+    font-size:16px;
+    font-weight:700;
+
+    cursor:pointer;
+}
+
+.verify-button:active{
+    transform:scale(.98);
+}
+
+
+/* Status */
+
+.status{
+    min-height:20px;
+
+    margin-top:10px;
+
+    font-size:13px;
+    line-height:1.4;
+}
+
+
+/* =========================
+   ANSWER
+========================= */
+
+.answer-box{
+    display:none;
+
+    margin-top:18px;
+    padding:20px;
+
+    border-radius:20px;
+
+    background:#1b1b1b;
+
+    border:
+    1px solid #343434;
+
+    text-align:center;
+}
+
+.answer-box.show{
+    display:block;
+}
+
+.answer-box .answer-label{
+    color:#888;
+
+    font-size:12px;
+
+    margin-bottom:7px;
+}
+
+.answer-box .answer-number{
+    font-size:38px;
+
+    font-weight:700;
+
+    color:#57d68d;
+
+    word-break:break-word;
+}
+
+
+/* =========================
+   HISTORY
+========================= */
+
+.history-panel{
+    display:none;
+
+    margin-top:20px;
+    padding:17px;
+
+    border:
+    1px solid #292929;
+
+    border-radius:20px;
+
+    background:#111;
+}
+
+.history-panel.show{
+    display:block;
+}
+
+.history-header{
+    display:flex;
+
+    align-items:center;
+    justify-content:space-between;
+
+    margin-bottom:10px;
+
+    font-weight:700;
+}
+
+.clear-history{
+    border:0;
+    background:none;
+
+    color:#ff9500;
+
+    cursor:pointer;
+
+    font-size:13px;
+}
+
+.history-list{
+    max-height:250px;
+    overflow-y:auto;
+}
+
+.history-item{
+    padding:
+    11px 0;
+
+    border-bottom:
+    1px solid #252525;
+
+    color:#bbb;
+
+    text-align:right;
+
+    font-size:14px;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer-note{
+    text-align:center;
+
+    margin-top:15px;
+
+    color:#555;
+
+    font-size:11px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-height:700px){
+
+    .display{
+        height:210px;
+        min-height:210px;
+    }
+
+    .key{
+        font-size:29px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="app-wrapper">
+
+<div class="app">
+
+
+<!-- =====================
+     TOP BAR
+===================== -->
+
+<div class="topbar">
+
+<button
+class="top-button"
+onclick="toggleHistory()">
+
+<span class="history-icon"></span>
+
+</button>
+
+
+<button
+class="top-button"
+onclick="goTop()">
+
+<span class="calculator-icon"></span>
+
+</button>
+
+</div>
+
+
+
+<!-- =====================
+     DISPLAY
+===================== -->
+
+<div class="display">
+
+<div id="expression"></div>
+
+<div id="display">
+0
+</div>
+
+</div>
+
+
+
+<!-- =====================
+     CALCULATOR
+===================== -->
+
+<div class="keys">
+
+
+<button
+class="key function-key"
+onclick="backspace()">
+
+<span class="backspace-icon"></span>
+
+</button>
+
+
+<button
+class="key function-key"
+onclick="clearCalculator()">
+
+AC
+
+</button>
+
+
+<button
+class="key function-key"
+onclick="percentage()">
+
+%
+
+</button>
+
+
+<button
+id="divideButton"
+class="key operator-key"
+onclick="addOperator('÷')">
+
+÷
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('7')">
+
+7
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('8')">
+
+8
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('9')">
+
+9
+
+</button>
+
+
+<button
+id="multiplyButton"
+class="key operator-key"
+onclick="addOperator('×')">
+
+×
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('4')">
+
+4
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('5')">
+
+5
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('6')">
+
+6
+
+</button>
+
+
+<button
+id="minusButton"
+class="key operator-key"
+onclick="addOperator('-')">
+
+−
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('1')">
+
+1
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('2')">
+
+2
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('3')">
+
+3
+
+</button>
+
+
+<button
+id="plusButton"
+class="key operator-key"
+onclick="addOperator('+')">
+
++
+
+</button>
+
+
+<button
+class="key number-key plus-minus"
+onclick="toggleSign()">
+
++/−
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('0')">
+
+0
+
+</button>
+
+
+<button
+class="key number-key"
+onclick="addNumber('.')">
+
+.
+
+</button>
+
+
+<button
+class="key operator-key"
+onclick="calculate()">
+
+=
+
+</button>
+
+</div>
+
+
+
+<!-- =====================
+     PAYMENT PAGE
+===================== -->
+
+<section
+id="paymentBox"
+class="payment-box">
+
+
+<h2 class="payment-title">
+Payment Required
+</h2>
+
+
+<p class="payment-subtitle">
+
+Answer দেখার জন্য payment verification
+complete করতে হবে।
+
+</p>
+
+
+<div class="payment-amount">
+
+<small>
+Price per answer
+</small>
+
+<strong>
+৳ 50
+</strong>
+
+</div>
+
+
+
+<div class="bkash-card">
+
+
+<span class="bkash-badge">
+
+<span class="bkash-dot"></span>
+
+bKash • Send Money
+
+</span>
+
+
+<p class="send-text">
+
+প্রতি answer-এর জন্য
+<strong>৳50</strong> Send Money করুন
+নিচের bKash নম্বরে।
+
+</p>
+
+
+
+<div class="bkash-number">
+
+<span class="label">
+bKash Number
+</span>
+
+<strong>
+01882333181
+</strong>
+
+</div>
+
+
+
+<button
+class="copy-button"
+onclick="copyNumber()">
+
+Copy bKash Number
+
+</button>
+
+
+
+<div class="payment-notice">
+
+<strong>Demo/Test Mode</strong><br>
+
+এই HTML version-এ real bKash payment
+automatically verify করা হয় না।
+Testing-এর জন্য demo code ব্যবহার
+করতে পারো।
+
+</div>
+
+
+
+<!-- Transaction ID + Demo Code -->
+
+<label
+class="trx-label"
+for="transaction">
+
+Transaction ID / Demo Code =
+<strong>iloveyourimon</strong>
+
+</label>
+
+
+<input
+id="transaction"
+class="trx-input"
+type="text"
+maxlength="50"
+autocomplete="off"
+placeholder="Enter Transaction ID"
+>
+
+
+<button
+class="verify-button"
+onclick="verifyPayment()">
+
+Verify Payment
+
+</button>
+
+
+<div
+id="paymentStatus"
+class="status">
+</div>
+
+
+
+<!-- ANSWER -->
+
+<div
+id="answerBox"
+class="answer-box">
+
+<div class="answer-label">
+Your Answer
+</div>
+
+
+<div
+id="answerNumber"
+class="answer-number">
+
+0
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================
+     HISTORY
+===================== -->
+
+<section
+id="historyPanel"
+class="history-panel">
+
+
+<div class="history-header">
+
+<span>
+Calculation History
+</span>
+
+
+<button
+class="clear-history"
+onclick="clearHistory()">
+
+Clear
+
+</button>
+
+</div>
+
+
+<div
+id="historyList"
+class="history-list">
+</div>
+
+</section>
+
+
+
+<div class="footer-note">
+
+Rimon EasyCalc • Payment Lock Demo
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<script>
+
+/* =========================
+   VARIABLES
+========================= */
+
+let expression = "";
+
+let lockedAnswer = null;
+
+let lockedExpression = "";
+
+let history =
+JSON.parse(
+localStorage.getItem(
+"rimonEasyCalcHistory"
+) || "[]"
+);
+
+
+/* =========================
+   DISPLAY
+========================= */
+
+function renderDisplay(){
+
+document.getElementById(
+"display"
+).textContent =
+expression || "0";
+
+}
+
+
+/* =========================
+   ADD NUMBER
+========================= */
+
+function addNumber(value){
+
+if(
+lockedAnswer !== null &&
+expression === String(lockedAnswer)
+){
+
+expression = "";
+
+lockedAnswer = null;
+
+lockedExpression = "";
+
+document.getElementById(
+"expression"
+).textContent = "";
+
+}
+
+
+/* Decimal protection */
+
+if(value === "."){
+
+const parts =
+expression.split(/[+×÷-]/);
+
+const current =
+parts[parts.length - 1];
+
+
+if(current.includes(".")){
+return;
+}
+
+
+if(current === ""){
+expression += "0";
+}
+
+}
+
+
+expression += value;
+
+renderDisplay();
+
+}
+
+
+/* =========================
+   ADD OPERATOR
+========================= */
+
+function addOperator(operator){
+
+if(!expression){
+return;
+}
+
+
+if(/[+×÷-]$/.test(expression)){
+
+expression =
+expression.slice(0,-1) +
+operator;
+
+}
+
+else{
+
+expression += operator;
+
+}
+
+
+renderDisplay();
+
+
+const ids = {
+
+"÷":"divideButton",
+
+"×":"multiplyButton",
+
+"-":"minusButton",
+
+"+":"plusButton"
+
+};
+
+
+const button =
+document.getElementById(
+ids[operator]
+);
+
+
+if(button){
+
+button.classList.add("active");
+
+
+setTimeout(function(){
+
+button.classList.remove("active");
+
+},120);
+
+}
+
+}
+
+
+/* =========================
+   BACKSPACE
+========================= */
+
+function backspace(){
+
+if(
+lockedAnswer !== null &&
+expression === String(lockedAnswer)
+){
+
+clearCalculator();
+
+return;
+
+}
+
+
+expression =
+expression.slice(0,-1);
+
+renderDisplay();
+
+}
+
+
+/* =========================
+   CLEAR
+========================= */
+
+function clearCalculator(){
+
+expression = "";
+
+lockedAnswer = null;
+
+lockedExpression = "";
+
+
+document.getElementById(
+"display"
+).textContent = "0";
+
+
+document.getElementById(
+"expression"
+).textContent = "";
+
+
+document.getElementById(
+"paymentBox"
+).classList.remove("show");
+
+
+document.getElementById(
+"answerBox"
+).classList.remove("show");
+
+
+document.getElementById(
+"transaction"
+).value = "";
+
+
+document.getElementById(
+"paymentStatus"
+).textContent = "";
+
+}
+
+
+/* =========================
+   PERCENTAGE
+========================= */
+
+function percentage(){
+
+if(!expression){
+return;
+}
+
+
+const match =
+expression.match(
+/(-?\d*\.?\d+)$/
+);
+
+
+if(!match){
+return;
+}
+
+
+const number =
+parseFloat(match[1]);
+
+
+const result =
+number / 100;
+
+
+expression =
+expression.slice(
+0,
+-match[1].length
+) +
+String(result);
+
+
+renderDisplay();
+
+}
+
+
+/* =========================
+   PLUS MINUS
+========================= */
+
+function toggleSign(){
+
+if(!expression){
+return;
+}
+
+
+const match =
+expression.match(
+/(\d*\.?\d+)$/
+);
+
+
+if(!match){
+return;
+}
+
+
+const number =
+match[1];
+
+
+const start =
+expression.slice(
+0,
+-number.length
+);
+
+
+expression =
+start +
+"(-" +
+number +
+")";
+
+
+renderDisplay();
+
+}
+
+
+/* =========================
+   CALCULATE
+========================= */
+
+function calculate(){
+
+if(!expression){
+return;
+}
+
+
+if(/[+×÷-]$/.test(expression)){
+
+expression =
+expression.slice(0,-1);
+
+}
+
+
+if(!expression){
+return;
+}
+
+
+const raw =
+expression
+.replaceAll("×","*")
+.replaceAll("÷","/");
+
+
+if(
+!/^[0-9+*/(). -]+$/.test(raw)
+){
+
+document.getElementById(
+"display"
+).textContent =
+"Error";
+
+return;
+
+}
+
+
+try{
+
+const result =
+Function(
+'"use strict";return (' +
+raw +
+')'
+)();
+
+
+if(!Number.isFinite(result)){
+throw new Error();
+}
+
+
+const rounded =
+Math.round(
+(result + Number.EPSILON) *
+100000000
+) /
+100000000;
+
+
+lockedAnswer = rounded;
+
+lockedExpression = expression;
+
+
+document.getElementById(
+"expression"
+).textContent =
+expression + " =";
+
+
+document.getElementById(
+"display"
+).textContent =
+"••••";
+
+
+document.getElementById(
+"paymentBox"
+).classList.add("show");
+
+
+document.getElementById(
+"transaction"
+).value = "";
+
+
+document.getElementById(
+"paymentStatus"
+).textContent = "";
+
+
+document.getElementById(
+"answerBox"
+).classList.remove("show");
+
+
+setTimeout(function(){
+
+document.getElementById(
+"paymentBox"
+).scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
+
+},100);
+
+}
+
+catch(error){
+
+document.getElementById(
+"display"
+).textContent =
+"Error";
+
+}
+
+}
+
+
+/* =========================
+   COPY BKASH NUMBER
+========================= */
+
+function copyNumber(){
+
+const number =
+"01882333181";
+
+
+if(
+navigator.clipboard
+){
+
+navigator.clipboard.writeText(
+number
+);
+
+const button =
+document.querySelector(
+".copy-button"
+);
+
+
+button.textContent =
+"Copied ✓";
+
+
+setTimeout(function(){
+
+button.textContent =
+"Copy bKash Number";
+
+},1500);
+
+}
+
+}
+
+
+/* =========================
+   VERIFY PAYMENT
+========================= */
+
+function verifyPayment(){
+
+const transaction =
+document.getElementById(
+"transaction"
+).value.trim();
+
+
+const status =
+document.getElementById(
+"paymentStatus"
+);
+
+
+if(!transaction){
+
+status.style.color =
+"#ff6b6b";
+
+status.textContent =
+"Please enter your Transaction ID.";
+
+return;
+
+}
+
+
+/*
+DEMO ONLY.
+iloveyourimon is a demo unlock code.
+*/
+
+if(
+transaction !==
+"iloveyourimon"
+){
+
+status.style.color =
+"#ff6b6b";
+
+status.textContent =
+"Invalid Transaction ID. Answer remains locked.";
+
+document.getElementById(
+"answerBox"
+).classList.remove("show");
+
+
+document.getElementById(
+"display"
+).textContent =
+"••••";
+
+return;
+
+}
+
+
+if(lockedAnswer === null){
+
+status.style.color =
+"#ff6b6b";
+
+status.textContent =
+"Please calculate an answer first.";
+
+return;
+
+}
+
+
+status.style.color =
+"#57d68d";
+
+status.textContent =
+"Demo verification successful. Answer unlocked.";
+
+
+document.getElementById(
+"answerNumber"
+).textContent =
+formatNumber(
+lockedAnswer
+);
+
+
+document.getElementById(
+"answerBox"
+).classList.add("show");
+
+
+document.getElementById(
+"display"
+).textContent =
+formatNumber(
+lockedAnswer
+);
+
+
+addHistory(
+lockedExpression,
+lockedAnswer
+);
+
+}
+
+
+/* =========================
+   FORMAT NUMBER
+========================= */
+
+function formatNumber(number){
+
+return Number(number)
+.toLocaleString(
+"en-US",
+{
+maximumFractionDigits:8
+}
+);
+
+}
+
+
+/* =========================
+   HISTORY
+========================= */
+
+function addHistory(
+calculation,
+result
+){
+
+history.unshift({
+
+calculation:
+calculation,
+
+result:
+result,
+
+date:
+new Date()
+.toLocaleString()
+
+});
+
+
+history =
+history.slice(0,50);
+
+
+localStorage.setItem(
+"rimonEasyCalcHistory",
+JSON.stringify(history)
+);
+
+
+renderHistory();
+
+}
+
+
+/* =========================
+   RENDER HISTORY
+========================= */
+
+function renderHistory(){
+
+const list =
+document.getElementById(
+"historyList"
+);
+
+
+if(history.length === 0){
+
+list.innerHTML =
+'<div class="history-item">' +
+'No calculation history' +
+'</div>';
+
+return;
+
+}
+
+
+list.innerHTML =
+history.map(function(item){
+
+return `
+
+<div class="history-item">
+
+${escapeHTML(
+item.calculation
+)}
+
+=
+
+${formatNumber(
+item.result
+)}
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHTML(value){
+
+return String(value)
+
+.replaceAll(
+"&",
+"&amp;"
+)
+
+.replaceAll(
+"<",
+"&lt;"
+)
+
+.replaceAll(
+">",
+"&gt;"
+)
+
+.replaceAll(
+'"',
+"&quot;"
+)
+
+.replaceAll(
+"'",
+"&#039;"
+);
+
+}
+
+
+/* =========================
+   HISTORY TOGGLE
+========================= */
+
+function toggleHistory(){
+
+const panel =
+document.getElementById(
+"historyPanel"
+);
+
+
+panel.classList.toggle(
+"show"
+);
+
+
+renderHistory();
+
+}
+
+
+/* =========================
+   CLEAR HISTORY
+========================= */
+
+function clearHistory(){
+
+history = [];
+
+
+localStorage.removeItem(
+"rimonEasyCalcHistory"
+);
+
+
+renderHistory();
+
+}
+
+
+/* =========================
+   GO TOP
+========================= */
+
+function goTop(){
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+}
+
+
+/* =========================
+   KEYBOARD SUPPORT
+========================= */
+
+document.addEventListener(
+"keydown",
+function(event){
+
+if(
+event.target.tagName ===
+"INPUT"
+){
+
+return;
+
+}
+
+
+if(
+/^[0-9]$/.test(
+event.key
+)
+){
+
+addNumber(
+event.key
+);
+
+}
+
+
+else if(
+event.key === "."
+){
+
+addNumber(".");
+
+}
+
+
+else if(
+event.key === "*"
+){
+
+addOperator("×");
+
+}
+
+
+else if(
+event.key === "/"
+){
+
+event.preventDefault();
+
+addOperator("÷");
+
+}
+
+
+else if(
+event.key === "+"
+){
+
+addOperator("+");
+
+}
+
+
+else if(
+event.key === "-"
+){
+
+addOperator("-");
+
+}
+
+
+else if(
+event.key === "%"
+){
+
+percentage();
+
+}
+
+
+else if(
+event.key === "Enter" ||
+event.key === "="
+){
+
+calculate();
+
+}
+
+
+else if(
+event.key === "Backspace"
+){
+
+backspace();
+
+}
+
+
+else if(
+event.key === "Escape"
+){
+
+clearCalculator();
+
+}
+
+});
+
+
+/* =========================
+   START
+========================= */
+
+renderHistory();
+
+</script>
+
+</body>
+</html>
